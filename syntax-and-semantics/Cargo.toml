@@ -1,0 +1,6 @@
+[package]
+name = "syntax-and-semantics"
+version = "0.1.0"
+authors = ["kotapiku <ice08235523@gmail.com>"]
+
+[dependencies]
