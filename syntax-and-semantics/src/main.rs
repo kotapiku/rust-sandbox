@@ -132,6 +132,74 @@ fn main() {
 
     {
         // 12 elems
+        enum BoardGameTurn {
+            Move { squares: i32 },
+            Pass,
+        }
+
+        let y: BoardGameTurn = BoardGameTurn::Move { squares: 1 };
+    }
+
+    {
+        // 13 match
+        let x = 5;
+
+        match x {
+            1 => println!("one"),
+            2 => println!("two"),
+            _ => println!("something else"),
+        }
+
+        enum Message {
+            Quit,
+            ChangeColor(i32, i32, i32),
+            Move { x: i32, y: i32 },
+            Write(String),
+        }
+
+        fn quit() {}
+        fn change_color(r: i32, g: i32, b: i32) {}
+        fn move_cursor(x: i32, y: i32) {}
+
+        fn process_message(msg: Message) {
+            match msg {
+                Message::Quit => quit(),
+                Message::ChangeColor(r, g, b) => change_color(r, g, b),
+                Message::Move { x, y } => move_cursor(x, y),
+                Message::Write(s) => println!("{}", s),
+            };
+        }
+    }
+
+    {
+        // 14 patterns
+        let x = 1;
+        
+        match x {
+            1 | 2 => println!("one or two"),
+            e @ 3 ... 5 => println!("three through five ({})", e),
+            _ => println!("something else"),
+        }
+
+        struct Point {
+            x: i32,
+            y: i32,
+        }
+
+        let point = Point { x: 0, y: 1 };
+
+        match point {
+            Point { y, .. } if y > 0 => println!("y is {}", y),
+            _ => println!("others"),
+        }
+
+        match x {
+            ref r => println!("ref x is {}", r),
+        }
+    }
+
+    {
+        // 15 method-syntax
     }
 }
 
