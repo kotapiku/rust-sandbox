@@ -1,5 +1,6 @@
 #![allow(unused)]
 use std::cell::Cell;
+use std::fmt::Debug;
 
 fn main() {
     {
@@ -8,11 +9,28 @@ fn main() {
         let (x, y) = (1, 2);
         let mut z = 3;
         z = 10;
-        println!("{}, {}, {}", x, y, z);
+        assert_eq!((1, 2, 10), (x, y, z));
     }
 
     {
         // 2 functions
+        fn print_number(x: i32) {
+            println!("x is : {}", x);
+        }
+
+        fn add_one(x: i32) -> i32 {
+            x + 1
+        }
+
+        fn foo(x: i32) -> i32 {
+            return x;
+            x + 1
+        }
+
+        fn diverges() -> ! {
+            panic!("this function never returns!");
+        }
+
         let f: fn(i32) -> i32 = add_one;
         let six = f(5);
     }
@@ -27,10 +45,10 @@ fn main() {
         let complete = &a[..];
         let middle = &a[1..4];  // middle: &[T]
         let a = [0; 20];
-        println!("size of a is {}", a.len());
+        assert_eq!(20, a.len());
 
         let x: (i32, &str) = (1, "hello");
-        println!("first value of tuple x is : {}", x.0);
+        assert_eq!(1, x.0);
     }
 
     {
@@ -57,8 +75,9 @@ fn main() {
         }
 
         for x in 0..5{
-            println!("{}", x);
+            print!("{} ", x);
         }
+        println!("");
 
         for (i, j) in (5..10).enumerate() {
             println!("i = {} and j = {}", i, j);
@@ -200,23 +219,190 @@ fn main() {
 
     {
         // 15 method-syntax
+        struct Circle {
+            x: f64,
+            y: f64,
+            radius: f64,
+        }
+
+        impl Circle {
+            fn area(&self) -> f64 {
+                std::f64::consts::PI * (self.radius * self.radius)
+            }
+        }
+
+        struct CircleBuilder {
+            x: f64,
+            y: f64,
+            radius: f64,
+        }
+
+        impl CircleBuilder {
+            fn new() -> CircleBuilder {
+                CircleBuilder { x: 0.0, y: 0.0, radius: 1.0, }
+            }
+
+            fn x(&mut self, coordinate: f64) -> &mut CircleBuilder {
+                self.x = coordinate;
+                self
+            }
+
+            fn y(&mut self, coordinate: f64) -> &mut CircleBuilder {
+                self.y = coordinate;
+                self
+            }
+
+            fn radius(&mut self, coordinate: f64) -> &mut CircleBuilder {
+                self.radius = coordinate;
+                self
+            }
+
+            fn finalize(&self) -> Circle {
+                Circle { x: self.x, y: self.y, radius: self.radius }
+            }
+        }
+
+        let c = CircleBuilder::new()
+                    .x(0.0)
+                    .y(0.0)
+                    .radius(2.0)
+                    .finalize();
+        println!("{}", c.area());
     }
-}
 
-// 2 functions
-fn print_number(x: i32) {
-    println!("x is : {}", x);
-}
+    {
+        // 16 vectors
+        let v = vec![0, 1, 2, 3, 4];
+        let i: usize = 1;
+        for i in &v {
+            print!("{} ", i);
+        }
+        println!("");
+    }
 
-fn add_one(x: i32) -> i32 {
-    x + 1
-}
+    {
+        // 17 strings
+        let greeting = "nya-n"; // greeting: &'static str
+        let s = "foo\
+            bar";
+        assert_eq!("foobar", s);
+        let mut s = greeting.to_string();   // s: mut string
+        s.push_str("nyan");
+        assert_eq!("nya-nnyan", s);
 
-fn foo(x: i32) -> i32 {
-    return x;
-    x + 1
-}
+        for b in s.as_bytes() {
+            print!("{}, ", b);
+        }
+        println!("");
 
-fn diverges() -> ! {
-    panic!("this function never returns!");
+        for c in s.chars() {
+            print!("{}", c);
+        }
+        println!("");
+
+        println!("{}",&s[0..3]);
+
+        let hello = "hello ".to_string();
+        let world = "world!".to_string();
+
+        println!("{}", hello + &world);
+    }
+
+    {
+        // 18 generics
+        struct Point<T> {
+            x: T,
+            y: T,
+        }
+
+        impl<T> Point<T> {
+            fn swap(&mut self) {
+                std::mem::swap(&mut self.x, &mut self.y);
+            }
+        }
+
+        let origin_int = Point { x: 0, y: 0 };
+        let origin_float = Point { x: 0.0, y: 0.0 };
+    }
+
+    {
+        // 19 traits
+        #[derive(Debug)]    // structに自動でtraitを実装
+        struct Circle {
+            x: f64,
+            y: f64,
+            radius: f64,
+        }
+
+        trait HasArea {
+            fn area(&self) -> f64;
+        }
+
+        impl HasArea for Circle {
+            fn area(&self) -> f64 {
+                std::f64::consts::PI * (self.radius * self.radius)
+            }
+        }
+
+        fn print_area<T: HasArea>(shape: T) {
+            println!("the area is {}", shape.area());
+        }
+
+        fn foo<T: Clone + Debug>(x: T) {
+            x.clone();
+            println!("{:?}", x);
+        }
+
+        fn bar<T, K>(x: T, y: K) where T: Clone, K: Clone + Debug {
+            x.clone();
+            y.clone();
+            println!("{:?}", y);
+        }
+    }
+
+    {
+        // 20 drop
+        struct Firework {
+            strength: i32,
+        }
+
+        impl Drop for Firework {
+            fn drop(&mut self) {
+                println!("Boom times {}", self.strength);
+            }
+        }
+
+        {
+            let framecracker = Firework { strength: 1 };
+            let tnt = Firework { strength: 100 };
+        }
+    }
+
+    {
+        // 21 if-let
+        fn foo<T: Debug>(x:T) { println!("some {:?}", x); }
+        fn bar() { println!("none"); }
+
+        let option = Some(1);
+        if let Some(x) = option {
+            foo(x);
+        } else {
+            bar();
+        }
+    }
+
+    {
+        // 22 trait-object
+        trait Foo {
+            fn method(&self) -> String;
+        }
+
+        impl Foo for u8 {
+            fn method(&self) -> String { format!("u8: {}", *self) }
+        }
+
+        impl Foo for String {
+            fn method(&self) -> String { format!("String: {}", *self) }
+        }
+    }
 }
