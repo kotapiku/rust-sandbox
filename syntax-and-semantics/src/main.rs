@@ -404,5 +404,42 @@ fn main() {
         impl Foo for String {
             fn method(&self) -> String { format!("String: {}", *self) }
         }
+
+        fn do_something(x: &Foo) { x.method(); }
+
+        let x = 5u8;
+        let y = "nya-n".to_string();
+
+        do_something(&x as &Foo);
+        do_something(&y);
+    }
+
+    {
+        // 23 closures
+        let plus_one = | x : i32| x + 1;
+        assert_eq!(2, plus_one(1));
+
+        let plus_two = | x | {
+            let mut result: i32 = x;
+            result += 1;
+            result += 1;
+            result
+        };
+        assert_eq!(4, plus_two(2));
+
+        let mut num = 5;
+
+        {
+            let mut add_num = move | x | num += x;
+            add_num(5);
+        }
+        assert_eq!(5, num);
+
+        {
+            let mut add_num = | x | num += x;
+            add_num(5);
+        }
+        assert_eq!(10, num);
+
     }
 }
