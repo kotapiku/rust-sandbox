@@ -441,5 +441,68 @@ fn main() {
         }
         assert_eq!(10, num);
 
+        fn call_with_one<F>(some_closure: F) -> i32
+            where F : Fn(i32) -> i32 {
+                some_closure(1)
+            }
+        let answer = call_with_one(|x| x + 2);
+        assert_eq!(3, answer);
+
+        fn call_with_one2(some_closure: &Fn(i32) -> i32) -> i32 {
+            some_closure(1)
+        }
+        let answer = call_with_one2(&plus_one);
+        assert_eq!(2, answer);
+
+        fn factory() -> Box<Fn(i32) -> i32> {
+            let num = 5;
+            Box::new(move |x| x + num)
+        }
+        let f = factory();
+        assert_eq!(6, f(1));
+    }
+
+    {
+        // 24 ufcs
+        {
+            trait Foo {
+                fn f(&self);
+            }
+            trait Bar {
+                fn f(&self);
+            }
+
+            struct Baz;
+
+            impl Foo for Baz {
+                fn f(&self) { println!("Baz's impl of Foo"); }
+            }
+            impl Bar for Baz {
+                fn f(&self) { println!("Baz's impl of Bar"); }
+            }
+            let b = Baz;
+            Foo::f(&b);
+            Bar::f(&b);
+        }
+        {
+            trait Foo {
+                fn foo() -> i32;
+            }
+
+            struct Bar;
+
+            impl Bar {
+                fn foo() -> i32 { 20 }
+            }
+            impl Foo for Bar {
+                fn foo() -> i32 { 10 }
+            }
+            assert_eq!(20, Bar::foo());
+            assert_eq!(10, <Bar as Foo>::foo());
+        }
+    }
+
+    {
+        // 25 crates-and-modules
     }
 }
