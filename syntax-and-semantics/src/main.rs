@@ -503,6 +503,87 @@ fn main() {
     }
 
     {
-        // 25 crates-and-modules
+        // 26 const-and-static
+        {
+            const N: i32 = 5;
+        }
+        {
+            static N: i32 = 5;
+            static NAME: &'static str = "Steve";
+        }
+        {
+            static mut N: i32 = 5;
+            unsafe {
+                N += 1;
+                println!("N: {}", N);
+            }
+        }
+    }
+
+    {
+        // 27 attributes
+        #[test]   // outer attribute
+        struct Foo;
+
+        mod bar {
+            #![cfg(target_os = "macos")]    // inner attribute
+        }
+    }
+
+    {
+        // 28 type-aliases
+        type Name = String;
+        let x: Name = "hello".to_string();
+
+        type Num = i32;
+        let x: i32 = 5;
+        let y: Num = 5;
+
+        assert_eq!(x, y);
+
+        use std::result;
+        enum ConcreteError {
+            Foo,
+            Bar,
+        }
+
+        type Result<T> = result::Result<T, ConcreteError>;
+    }
+
+    {
+        // 29 casting-between-types
+        let one = true as u8;
+        let at_sign = 64 as char;
+        let two_hundred = -56i8 as u8;
+
+        let a = 300 as *const char;
+        let b = a as u32;
+
+        use std::mem;
+
+        unsafe {
+            let a = [0u8, 0u8, 0u8, 0u8];
+            let b = mem::transmute::<[u8; 4], u32>(a);
+        }
+    }
+
+    {
+        // 30 associated-types
+        {
+            trait Graph<N, E> {
+                fn has_edge(&self, &N, &N) -> bool;
+                fn edges(&self, &N) -> Vec<E>;
+            }
+        }
+        {
+            trait Graph {
+                type N;
+                type E;
+                fn has_edge(&self, &Self::N, &Self::N) -> bool;
+                fn edges(&self, &Self::N) -> Vec<Self::E>;
+            }
+
+            fn distance<G: Graph>(graph: &G, start: &G::N, end: &G::N) -> u32 { 0 }
+        }
     }
 }
